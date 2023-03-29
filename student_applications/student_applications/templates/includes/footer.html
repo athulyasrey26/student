@@ -1,0 +1,102 @@
+<footer class="footer">
+    <div class="container">
+        <hr>
+        <p>&copy; {{ year }} {% block title %}{% endblock %}. All rights reserved.</p>
+    </div>
+</footer>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.6.4.min.js" ></script>
+
+
+
+  <script>
+    $(document).ready(function(){
+        $('.dropdown-toggle').dropdown();
+    });
+</script> -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/notify/0.4.2/notify.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Listen for change event on department field
+    $('#id_department').change(function() {
+        var departmentId = $(this).val();
+        // Make an AJAX request to load courses for the selected department
+        $.ajax({
+            url: '{% url "load_courses" %}',
+            data: {
+                'department_id': departmentId
+            },
+            dataType: 'json',
+            success: function(data) {
+                // Clear the existing options from the course field
+                var courseSelect = $('#id_course');
+                courseSelect.empty();
+                // Add the new options fetched from the server
+                $.each(data.courses, function(index, course) {
+                    courseSelect.append($('<option/>', {
+                        value: course.id,
+                        text: course.name
+                    }));
+                });
+                // Enable the course field
+                courseSelect.prop('disabled', false);
+            }
+        });
+    });
+});
+</script>
+<script>
+    /*
+        On submiting the form, send the POST ajax
+        request to server and after successfull submission
+        display the object.
+    */
+    $("#applicationform").submit(function (e) {
+        // preventing from page reload and default actions
+        e.preventDefault();
+        // serialize the data for sending the form data.
+        var serializedData = $(this).serialize();
+        // make POST ajax call
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'applicationsubmit' %}",
+            data: serializedData,
+            success: function (response) {
+                // on successfull creating object
+                // 1. clear the form.
+                $("#applicationform").trigger('reset');
+                // 2. focus to nickname input 
+                $("#name").focus();
+                // alert("Successfull submission");
+                console.log("Successfull submission");
+                $.notify("Application submitted successfully!", { 
+                    className: "success",
+                    position: "top center"
+                });
+                console.log(response);
+                materials = response.materials
+                let materialNames = '';
+                for (let i = 0; i < materials.length; i++) {
+                materialNames += materials[i].name + ', ';
+                }
+                materialNames = materialNames.slice(0, -2);
+                
+                var newRow = '<tr><td>' + response.name + '</td><td>' + response.age + '</td><td>' + response.date_of_birth + '</td><td>' + response.gender + '</td><td>' + response.phone_number + '</td><td>' + response.email + '</td><td>' + response.address + '</td><td>' + response.department_name + '</td><td>' + response.course_name + '</td><td>' + response.purpose_name + '</td><td>' + materialNames + '</td></tr>';
+                $('#datatable tbody').append(newRow);
+                
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                $.notify("An error occurred while submitting the application.", { 
+                    className: "error",
+                    position: "top center"
+                });
+                // alert(response["responseJSON"]["error"]);
+            }
+        })
+    })
+</script>

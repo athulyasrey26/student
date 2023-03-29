@@ -1,0 +1,11 @@
+{% extends 'includes/base.html' %}
+
+{% block content %}
+<div class="hero-banner">
+    <div class="overlay"></div>
+    <div class="hero-banner-content">
+        <h1>Welcome to Our Website</h1>
+        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Login</a>
+    </div>
+</div>
+{% endblock %}
